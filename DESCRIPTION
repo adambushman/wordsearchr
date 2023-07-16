@@ -1,0 +1,13 @@
+Package: wordsearchr
+Type: Package
+Title: This package creates custom word searches
+Version: 0.1.0
+Authors@R: person("Adam", "Bushman", email = "adam.bushman1@gmail.com",
+  role = c("aut", "cre"))
+Author: Adam Bushman [aut, cre]
+Maintainer: Adam Bushman <adam.bushman1@gmail.com>
+Description: This package allows you to quickly make a traditional word search and style it nicely for printing. The only hard part will be coming up with the words for which to search!
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
