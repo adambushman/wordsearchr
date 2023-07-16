@@ -123,17 +123,14 @@ clean_up <- function(search) {
 #' @examples
 #' ideal_dims(10)
 ideal_dims <- function(size) {
-  min = size
-  num = 1
+  row = floor(sqrt(size))
+  col = ceiling(sqrt(size))
 
-  for(i in 2:size) {
-    if(size %% i == 0 & min > abs(i - (size / i))) {
-      min = abs(i - (size / i))
-      num = i
-    }
+  if((row * col) < size) {
+    col = col + 1
   }
 
-  return(c(num, size / num))
+  return(c(row, col))
 }
 
 #' Generate word search
@@ -146,7 +143,7 @@ ideal_dims <- function(size) {
 #' @param type A character string identifying the type of word search, accepting
 #' "ready" and "raw" values. "ready" will create a fully populated word search while
 #' "raw" will leave non-mapped positions with a "-" for validation.
-#' @seealso [ideal_dims(), clean_up(), get_mapping(), reorder_words()]
+#' @seealso [ideal_dims(), clean_up(), get_mapping(), reorder_words(), render()]
 #' @returns A list of two data frame table elements: 1) "grid", or the mapped words
 #' ready for either render or validation, and 2) "reference", or the words to look
 #' up in the grid.
@@ -268,3 +265,64 @@ gen_word_search <- function(
     }
 }
 
+#' Render word search
+#'
+#' `render()` creates a {ggplot2} object for previewing and assembling the final
+#' visualization.
+#'
+#' @param table A data frame table for plotting in a grid fashion.
+#' @seealso [gen_word_search(), assemble()]
+#' @returns A {ggplot2} object.
+#' @import 'ggplot2'
+#' @examples
+#' # Rendered wordsearch
+#' p <- render(demo_wordsearch$grid)
+#' @export
+render <- function(table) {
+  p <-
+    ggplot2::ggplot(
+      table,
+      ggplot2::aes(Var2, Var1, label = Freq)
+    ) +
+    ggplot2::geom_text() +
+    ggplot2::scale_y_discrete(limits = rev) +
+    ggplot2::theme_void()
+
+  return(p)
+}
+
+#' Assemble complete word search
+#'
+#' `assemble()` creates a {ggplot2} object for previewing and assembling the final
+#' visualization.
+#'
+#' @param grid A {ggplot2} object for the grid.
+#' @param reference A {ggplot2} object for the lookup reference.
+#' @seealso [render()]
+#' @returns An assembled {ggplot2} object with the grid and lookup reference.
+#' @import 'patchwork'
+#' @examples
+#' # Wordsearch pieces
+#' p1 <- render(demo_wordsearch$grid)
+#' p2 <- render(demo_wordsearch$reference)
+#'
+#' # Assembled wordsearch
+#' assemble(p1, p2)
+#' @export
+assemble <- function(grid, reference) {
+  lay <- "
+    1
+    1
+    1
+    1
+    1
+    2
+  "
+
+  p <-
+    grid +
+    reference +
+    patchwork::plot_layout(design = lay)
+
+  return(p)
+}

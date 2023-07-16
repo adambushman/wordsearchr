@@ -38,5 +38,5 @@ wordsearch.ready <- gen_word_search(words, "easy", "ready")
 wordsearch.raw <- gen_word_search(words, "easy", "raw")
 }
 \seealso{
-[ideal_dims(), clean_up(), get_mapping(), reorder_words()]
+[ideal_dims(), clean_up(), get_mapping(), reorder_words(), render()]
 }
