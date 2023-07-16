@@ -32,7 +32,7 @@ reorder_words <- function(words) {
 #' @seealso [gen_word_search()]
 #' @returns A list of elements detailing the start position for mapping the word
 #' and the its direction.
-#' @import 'stringr'
+#' @import stringr
 #' @examples
 #' words = c("Hi", "Hello", "Howdy")
 #'
@@ -89,7 +89,7 @@ get_mapping <- function(dims, word, orientation) {
 #' @param search A produced word search matrix.
 #' @seealso [gen_word_search()]
 #' @returns A cleaned, ready to render word search matrix.
-#' @import 'stringr'
+#' @import stringr
 #' @examples
 #' x <- matrix(
 #'   c("-", "H", "-", "I"),
@@ -147,7 +147,7 @@ ideal_dims <- function(size) {
 #' @returns A list of two data frame table elements: 1) "grid", or the mapped words
 #' ready for either render or validation, and 2) "reference", or the words to look
 #' up in the grid.
-#' @import 'stringr'
+#' @import stringr
 #' @examples
 #' words <- c("Hi", "Hello", "Howdy")
 #'
@@ -263,6 +263,41 @@ gen_word_search <- function(
         reference = as.data.frame.table(look_up)
       ))
     }
+}
+
+#' Ready wordsearch
+#'
+#' `ready_wordsearch()` takes a raw word search object and turns it into a ready format.
+#' The same can be accomplished by passing "ready" to the type parameter of `gen_word_search()`
+#'
+#' @param grid A produced word search from `gen_word_search()` in list format, containing two elements:
+#' 'grid' and 'reference'. The function will replace all empty positions with randomly generated letters.
+#' @seealso [gen_word_serach()]
+#' @returns A word search list object ready for assembly.
+#' @import stringr purrr
+#' @examples
+#' # Raw wordsearch
+#' words <- c("Hi", "Hello", "Howdy")
+#' raw <- gen_word_search(words, "easy", "raw")
+#'
+#' # Turn it ready
+#' ready <- ready_wordsearch(raw)
+#' @export
+ready_wordsearch <- function(wordsearch) {
+  if(class(wordsearch) != "list" | length(setdiff(names(wordsearch), c("grid", "reference"))) != 0) {
+    stop("The object you passed to the ")
+  }
+
+  get_ready <- function(x) {
+    if(x == "-") {
+      x = stringr::str_to_upper(sample(base::letters, 1))
+    }
+    return(x)
+  }
+
+  wordsearch$grid$Freq = purrr::map_chr(wordsearch$grid$Freq, get_ready)
+
+  return(wordsearch)
 }
 
 #' Render word search

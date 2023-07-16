@@ -2,7 +2,9 @@
 
 export(assemble)
 export(gen_word_search)
+export(ready_wordsearch)
 export(render)
 import('ggplot2')
 import('patchwork')
-import('stringr')
+import(purrr)
+import(stringr)

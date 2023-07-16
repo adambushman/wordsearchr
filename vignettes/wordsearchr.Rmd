@@ -1,0 +1,88 @@
+---
+title: "wordsearchr"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{wordsearchr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+`{wordsearchr}` is a package that allows you to quickly make a traditional word search and style it nicely for printing. The only hard part will be coming up with the words for which to search!
+
+# Getting Started
+
+To get started with the package, install using `remotes`:
+
+```{r eval=FALSE}
+install.packages("remotes")
+
+remotes::install_github(
+  "adambushman/wordsearchr", 
+  dependencies = TRUE, 
+  build_vignettes = TRUE
+)
+```
+
+Once installed, load the package using the `library` command below or reference individual components using the `::` framework:
+
+```{r}
+# Load the entire library into the session
+
+library("wordsearchr")
+```
+
+You'll find helpful functions for generating word search components, rendering, and assembling the final product. Let's see how!
+
+# Making a word search
+
+Word searches a fun activity for any age. What isn't fun is making it from scratch. Good news is with `{wordsearchr}`, you'll never have to again! 
+
+Getting started is as simple as storing the words we'd like for the search into a vector and calling `gen_word_search()`:
+
+```{r}
+words <- c("Hi", "Hello", "Howdy")
+
+wordsearch <- gen_word_search(
+  words, "easy", "raw"
+)
+```
+
+The above produces a list object with two elements. 1) the "grid" where the words will be randomly mapped and 2) the "reference" table for those using the word search to know what to look for.
+
+We can create an "easy" word search where words are mapped reading "right", "bottom", or a combination. A "hard" word searches uses "left", "top", and their combinations. You can also specify "mix" to allow for any mapping.
+
+The "raw" type gives us a word search that keeps the empty spaces so you can validate. When you're satisfied, you can convert to a "ready" wordsearch with `ready_wordsearch()`. Just pass the whole wordsearch object:
+
+```{r}
+ready_ws <- ready_wordsearch(wordsearch)
+```
+
+Alternatively, if no validation is necessary, just pass "ready" to the type parameter of `gen_word_search()` from the get go and receive a word search with randomly generated letters already occupying those empty spaces.
+
+Now that the mappings are complete, we can render the word search, or convert the data structure to a graphical representation using `{ggplot2}`. Just call the `render()` function and pass in either (or both) of the "grid" and "reference" elements.
+
+```{r}
+p_grid <- render(ready_ws$grid)
+p_grid
+
+p_ref <- render(ready_ws$reference)
+p_ref
+```
+
+Because they are `{ggplot2}` objects, we can apply layers and adjust the theme to achieve the style to our liking. Once the objects are ready, we can put them together with `assemble()` which combines the objects into one, where the "grid" takes up most of the top portion and the "reference" is at the bottom:
+
+```{r}
+full_ws <- assemble(p_grid, p_ref) # Be sure to pass the grid, then the reference
+full_ws
+```
+
+And now, we have our completed word search. Well done!
