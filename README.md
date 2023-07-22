@@ -47,7 +47,7 @@ Now your words are mapped and stored in a list object, comprised of a "grid" (th
 To render the data structure in a graphical format, we can call `build_wordsearch()`. We need only pass it our wordsearch object and it will do all the heavy lifting, making use use of the `{ggplot2}` and `{patchwork}` packages.
 
 ```
-p <- build_wordsearch(wordsearch)
+p <- build_wordsearch(wordsearch, TRUE) # Change to FALSE to hide solution
 p
 
 ```
