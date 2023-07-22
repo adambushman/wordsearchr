@@ -193,6 +193,8 @@ gen_word_search <- function(
 
     size = max(stringr::str_length(words))
     search = matrix("-", nrow = ceiling(size + length(words) / 2), ncol = ceiling(size + length(words) / 2))
+    solution = data.frame(matrix(nrow = 0, ncol = 3))
+    colnames(solution) = c("x", "y", "Freq")
 
     word_orientation = sample(directions, length(words), replace = TRUE)
 
@@ -239,6 +241,9 @@ gen_word_search <- function(
         search[curr_pos[1], curr_pos[2]] = letters[j]
         curr_pos = curr_pos + pos_data$change
       }
+
+      solution[nrow(solution)+1,] = c(rev(pos_data$start), words[i])
+      solution[nrow(solution)+1,] = c(rev(curr_pos - pos_data$change), words[i])
     }
 
     colnames(search) = 1:ncol(search)
@@ -254,13 +259,15 @@ gen_word_search <- function(
     if(type == "raw") {
       return(list(
         grid = as.data.frame.table(search),
-        reference = as.data.frame.table(look_up)
+        reference = as.data.frame.table(look_up),
+        solution = solution
       ))
     }
     else {
       return(list(
         grid = as.data.frame.table(clean_up(search)),
-        reference = as.data.frame.table(look_up)
+        reference = as.data.frame.table(look_up),
+        solution = solution
       ))
     }
 }
@@ -270,7 +277,7 @@ gen_word_search <- function(
 #' `ready_wordsearch()` takes a raw word search object and turns it into a ready format.
 #' The same can be accomplished by passing "ready" to the type parameter of `gen_word_search()`
 #'
-#' @param grid A produced word search from `gen_word_search()` in list format, containing two elements:
+#' @param wordsearch A produced word search from `gen_word_search()` in list format, containing two elements:
 #' 'grid' and 'reference'. The function will replace all empty positions with randomly generated letters.
 #' @seealso [gen_word_serach()]
 #' @returns A word search list object ready for assembly.
@@ -284,8 +291,8 @@ gen_word_search <- function(
 #' ready <- ready_wordsearch(raw)
 #' @export
 ready_wordsearch <- function(wordsearch) {
-  if(class(wordsearch) != "list" | length(setdiff(names(wordsearch), c("grid", "reference"))) != 0) {
-    stop("The object you passed to the ")
+  if(class(wordsearch) != "list" | length(setdiff(names(wordsearch), c("grid", "reference", "solution"))) != 0) {
+    stop("The object you passed doesn't appear to be a wordsearch object")
   }
 
   get_ready <- function(x) {
@@ -300,51 +307,68 @@ ready_wordsearch <- function(wordsearch) {
   return(wordsearch)
 }
 
-#' Render word search
+#' Assemble complete word search
 #'
-#' `render()` creates a {ggplot2} object for previewing and assembling the final
-#' visualization.
+#' `build_wordsearch()` creates a {ggplot2} object of the assembled, final word search
 #'
-#' @param table A data frame table for plotting in a grid fashion.
-#' @seealso [gen_word_search(), assemble()]
-#' @returns A {ggplot2} object.
-#' @import 'ggplot2'
+#' @param wordsearch A produced word search from `gen_word_search()` in list format, containing two elements:
+#' 'grid' and 'reference'. The function will replace all empty positions with randomly generated letters.
+#' @param solution A logical (TRUE/FALSE) indicating if the solution should be rendered.
+#' @seealso [gen_word_search()]
+#' @returns An assembled {ggplot2} object with the grid, lookup reference, and solution
+#' (if specified).
+#' @import ggplot2 patchwork
 #' @examples
-#' # Rendered wordsearch
-#' p <- render(demo_wordsearch$grid)
+#' words <- c("Hi", "Hello", "Howdy")
+#' wordsearch <- gen_word_search(words, "easy", "ready")
+#'
+#' # Assembled wordsearch
+#' build_wordsearch(wordsearch, TRUE)
 #' @export
-render <- function(table) {
-  p <-
-    ggplot2::ggplot(
-      table,
-      ggplot2::aes(Var2, Var1, label = Freq)
-    ) +
-    ggplot2::geom_text() +
+build_wordsearch <- function(wordsearch, solution = TRUE) {
+
+  if(class(wordsearch) != "list" | length(setdiff(names(wordsearch), c("grid", "reference", "solution"))) != 0) {
+    stop("The object you passed doesn't appear to be a wordsearch object")
+  }
+
+  if(!is.logical(solution)) {
+    stop("You must pass TRUE/FALSE to the 'solution' parameter")
+  }
+
+  grid <-
+    ggplot2::ggplot() +
+    ggplot2::geom_text(
+      ggplot2::aes(Var2, Var1, label = Freq),
+      wordsearch$grid
+    )
+
+  if(solution) {
+    grid <-
+      grid +
+      ggplot2::geom_line(
+        ggplot2::aes(x, y, group = Freq, color = Freq),
+        wordsearch$solution,
+        linewidth = 7,
+        lineend = "round",
+        alpha = 0.3,
+        show.legend = FALSE
+      )
+  }
+
+  grid <-
+    grid +
     ggplot2::scale_y_discrete(limits = rev) +
     ggplot2::theme_void()
 
-  return(p)
-}
+  reference <-
+    ggplot2::ggplot() +
+    ggplot2::geom_text(
+      ggplot2::aes(Var2, Var1, label = Freq),
+      wordsearch$reference
+    ) +
+    ggplot2::scale_y_discrete(limits = rev) +
+    ggplot2::theme_void()
 
-#' Assemble complete word search
-#'
-#' `assemble()` creates a {ggplot2} object for previewing and assembling the final
-#' visualization.
-#'
-#' @param grid A {ggplot2} object for the grid.
-#' @param reference A {ggplot2} object for the lookup reference.
-#' @seealso [render()]
-#' @returns An assembled {ggplot2} object with the grid and lookup reference.
-#' @import 'patchwork'
-#' @examples
-#' # Wordsearch pieces
-#' p1 <- render(demo_wordsearch$grid)
-#' p2 <- render(demo_wordsearch$reference)
-#'
-#' # Assembled wordsearch
-#' assemble(p1, p2)
-#' @export
-assemble <- function(grid, reference) {
   lay <- "
     1
     1

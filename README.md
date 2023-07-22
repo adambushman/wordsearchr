@@ -1,4 +1,4 @@
-# {wordsearchr} Package <img src="https://github.com/adambushman/wordsearchr/blob/main/word-searchr_package_hex.png" align="right" width="300"/>
+# {wordsearchr} Package <img src="https://github.com/adambushman/wordsearchr/blob/main/man/figures/wordsearchr_package_hex.png" align="right" width="300"/>
 
 This package allows you to quickly make a traditional word search and style it nicely for printing. The only hard part will be coming up with the words for which to search!
 
@@ -42,25 +42,17 @@ wordsearch <- gen_word_search(
 
 ```
 
-Now your words are mapped and stored in a list object, comprised of a "grid" (the area to search) and the "reference" (the words to find).
+Now your words are mapped and stored in a list object, comprised of a "grid" (the area to search), the "reference" (the words to find), and the "solution" (data to highlight the solution).
 
-To render the data structure in a graphical format, we can call `render()`. We'll get a `{ggplot2}` object back that we can style to our heart's content. You'll want to render both the grid and the reference separately.
+To render the data structure in a graphical format, we can call `build_wordsearch()`. We need only pass it our wordsearch object and it will do all the heavy lifting, making use use of the `{ggplot2}` and `{patchwork}` packages.
 
 ```
-p_grid <- render(wordsearch$grid)
-p_grid
-
-p_ref <- render(wordsearch$reference)
-p_ref
+p <- build_wordsearch(wordsearch)
+p
 
 ```
 
-With the objects ready, we can assemble our wordsearch (with the grid on top and the reference on the bottom) by callilng `assemble()`. It makes use of the `{patchwork}` package on the back end to make them into a single `{ggplot2}` object.
-
-```
-full_ws <- assemble(p_grid, p_ref) # Be sure to pass the grid, then the reference
-full_ws
-```
+![Completed Wordsearch](https://github.com/adambushman/wordsearchr/blob/main/man/figures/example_wordsearch.jpeg)
 
 And voilla! You have your word search. Congratulations!
 

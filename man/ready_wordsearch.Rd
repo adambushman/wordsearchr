@@ -7,7 +7,7 @@
 ready_wordsearch(wordsearch)
 }
 \arguments{
-\item{grid}{A produced word search from `gen_word_search()` in list format, containing two elements:
+\item{wordsearch}{A produced word search from `gen_word_search()` in list format, containing two elements:
 'grid' and 'reference'. The function will replace all empty positions with randomly generated letters.}
 }
 \value{

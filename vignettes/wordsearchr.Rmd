@@ -56,7 +56,7 @@ wordsearch <- gen_word_search(
 )
 ```
 
-The above produces a list object with two elements. 1) the "grid" where the words will be randomly mapped and 2) the "reference" table for those using the word search to know what to look for.
+The above produces a list object with two elements. 1) the "grid" (the area to search), 2) the "reference" (the words to find), and 3) the "solution" (data to highlight the solution).
 
 We can create an "easy" word search where words are mapped reading "right", "bottom", or a combination. A "hard" word searches uses "left", "top", and their combinations. You can also specify "mix" to allow for any mapping.
 
@@ -68,21 +68,11 @@ ready_ws <- ready_wordsearch(wordsearch)
 
 Alternatively, if no validation is necessary, just pass "ready" to the type parameter of `gen_word_search()` from the get go and receive a word search with randomly generated letters already occupying those empty spaces.
 
-Now that the mappings are complete, we can render the word search, or convert the data structure to a graphical representation using `{ggplot2}`. Just call the `render()` function and pass in either (or both) of the "grid" and "reference" elements.
+To render the data structure in a graphical format, we can call `build_wordsearch()`. We need only pass it our wordsearch object and it will do all the heavy lifting, making use use of the `{ggplot2}` and `{patchwork}` packages.
 
 ```{r}
-p_grid <- render(ready_ws$grid)
-p_grid
-
-p_ref <- render(ready_ws$reference)
-p_ref
-```
-
-Because they are `{ggplot2}` objects, we can apply layers and adjust the theme to achieve the style to our liking. Once the objects are ready, we can put them together with `assemble()` which combines the objects into one, where the "grid" takes up most of the top portion and the "reference" is at the bottom:
-
-```{r}
-full_ws <- assemble(p_grid, p_ref) # Be sure to pass the grid, then the reference
-full_ws
+p <- build_wordsearch(ready_ws)
+p
 ```
 
 And now, we have our completed word search. Well done!
